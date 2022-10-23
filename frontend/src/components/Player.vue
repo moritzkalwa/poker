@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import Card from "@/components/Card.vue"
 
-import { ref, toRefs } from "vue"
+import { ref, toRefs, inject } from "vue"
+import type Poker from "../../poker"
+
+const props = defineProps<{
+    id: string
+}>()
 
 const showFront = ref(false)
+
+const poker = inject<Poker>('poker')
+
+const player = poker?.state.value.members.find((member) => member.id === props.id)
 </script>
 
 <template>
@@ -16,7 +25,7 @@ const showFront = ref(false)
         <div class="player-info">
             <img src="/player.png">
             <div class="player-info-text">
-                <span class="player-info-name">Player 1</span>
+                <span class="player-info-name">{{player?.name}}</span>
                 <span class="player-info-money">150€</span>
             </div>
         </div>

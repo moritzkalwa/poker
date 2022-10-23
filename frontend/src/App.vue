@@ -40,12 +40,7 @@ const amount = ref(1675);
       <River />
       <Deck />
       <div class="players">
-        <Player/>
-        <Player/>
-        <Player/>
-        <Player/>
-        <Player/>
-        <Player/>
+        <Player v-for="player in poker.state.value.members" :id="player.id"/>
       </div>
     </div>
   <Controls />

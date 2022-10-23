@@ -35,6 +35,7 @@ export default class Poker {
         //console.log(state)
       }),
     )
+    this.joinRoom('Moritz')
   }
   destroy = (): void => this.handlers.forEach(off => off())
 
@@ -52,6 +53,7 @@ export default class Poker {
 
   joinRoom = async (name: string): Promise<void> => {
     const join = () => {
+      console.log('hi')
       return new Promise<void>(res => {
         this.roomEmit("joinRoom", { name }, state => {
           this.state.value = state

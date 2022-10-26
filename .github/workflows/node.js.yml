@@ -1,5 +1,9 @@
 name: Node.js Backend
 
+defaults:
+  run:
+    working-directory: ./backend
+
 on:
   push:
     branches: [ "main" ]
@@ -27,7 +31,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        working-directory: ./backend
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test

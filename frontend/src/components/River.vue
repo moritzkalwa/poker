@@ -20,6 +20,7 @@ const hidden = reactive(Array(5).fill(false))
 const poker = inject<Poker>('poker')
 
 poker?.pokerHandler.on('newCards', () => {
+  highlighted.value = [false, false, false, false, false]
   stagger([
     () => hidden[4] = true,
     () => hidden[3] = true,

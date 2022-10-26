@@ -6,9 +6,9 @@
   "scripts": {
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "dev": "tsc -p . & set PORT=3020& node server.js",
+    "dev": "tsc -p . & set PORT=3020& node dist/server.js",
     "build": "npx tsc -p .",
-    "start": "node server.js"
+    "start": "node dist/server.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import Chip from "@/components/Chip.vue"
 import { amountToChips } from "../../util";
+import type Poker from "../../poker"
 
-import { toRefs, computed, ref } from 'vue';
+import { computed, watch, ref, inject } from 'vue';
 
-const props = defineProps<{
-    amount: number
-}>()
+const poker = inject<Poker>('poker')
 
-const { amount } = toRefs(props)
+const amount = poker!.budget
+const selectedAmount = poker!.selectedAmount
 
 const chips = computed(() => amountToChips(amount.value))
 
-const selectedAmount = computed(() => {
-    return Math.min(selectedReds.value * 25 + selectedBlues.value * 50 + selectedBlacks.value * 100 + selectedWhites.value * 500, amount.value)
+const selectedReds = ref(0)
+const selectedBlues = ref(0)
+const selectedBlacks = ref(0)
+const selectedWhites = ref(0)
+
+watch([selectedReds, selectedBlues, selectedBlacks, selectedWhites], () => {
+    selectedAmount.value = Math.min(selectedReds.value * 25 + selectedBlues.value * 50 + selectedBlacks.value * 100 + selectedWhites.value * 500, amount.value)
 })
 
 const select = (index: number, value: 25 | 50 | 100 | 500) => {
@@ -38,46 +43,37 @@ const select = (index: number, value: 25 | 50 | 100 | 500) => {
         selected.value = index + 1
     }
 }
-
-const selectedReds = ref(3)
-const selectedBlues = ref(0)
-const selectedBlacks = ref(0)
-const selectedWhites = ref(0)
 </script>
 
 <template>
     <div class="chip-display">
         <div class="reds">
             <Chip 
-                v-for="i in Array(chips[0]).keys()" 
-                :style="{'--index': i}" 
+                v-for="i in Array(chips[0]).keys()"
                 :class="{selected: i < selectedReds}" 
                 :value="25" 
                 @click="select(i, 25)"
             />
         </div>
-        <div class="blues" :style="{'--amount': chips[0]} as any">
+        <div class="blues">
             <Chip 
                 v-for="i in Array(chips[1]).keys()" 
-                :style="{'--index': i}" 
                 :class="{selected: i < selectedBlues}" 
                 :value="50" 
                 @click="select(i, 50)"
             />
         </div>
-        <div class="blacks" :style="{'--amount': chips[0] + chips[1]} as any">
+        <div class="blacks">
             <Chip 
-                v-for="i in Array(chips[2]).keys()" 
-                :style="{'--index': i}" 
+                v-for="i in Array(chips[2]).keys()"
                 :class="{selected: i < selectedBlacks}" 
                 :value="100" 
                 @click="select(i, 100)"
             />
         </div>
-        <div class="whites" :style="{'--amount': chips[0] + chips[1] + chips[2]} as any">
+        <div class="whites" >
              <Chip 
                 v-for="i in Array(chips[3]).keys()" 
-                :style="{'--index': i}" 
                 :class="{selected: i < selectedWhites}" 
                 :value="500" 
                 @click="select(i, 500)"
@@ -85,7 +81,7 @@ const selectedWhites = ref(0)
         </div>
     </div>
     <div>
-        {{selectedAmount}}
+        {{selectedAmount}}$
     </div>
 </template>
 
@@ -94,25 +90,15 @@ const selectedWhites = ref(0)
     display: flex;
     align-items: center;
     height: 100%;
-    width: v-bind("`${(chips[0] + chips[1] + chips[2] + chips[3]) * 10 + chips.filter((a) => a != 0).length * 50 }px`");
-    padding: 0px 3px;
     &>* {
         display: flex;
-        position: relative;
         height: 50px;
-        &:nth-child(2) {
-            left: calc(var(--amount) * 10px + 50px);
-        }
-        &:nth-child(3) {
-            left: calc(var(--amount) * 10px + 100px);
-        }
-        &:nth-child(4) {
-            left: calc(var(--amount) * 10px + 150px);
-        }
+        margin-right: 12.5px;
         &>.chip {
-            position: absolute;
-            left: calc(var(--index) * 10px);
             cursor: pointer;
+            &:not(:first-child) {
+                margin-left: calc(-50px / 4 * 3);
+            }
             &.selected {
                 box-shadow: 0px 0px 5px 3px #EFFF20;
             }

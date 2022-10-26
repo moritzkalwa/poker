@@ -22,6 +22,14 @@ const amountToChips = (amount: number) => {
     result[3] += 1
     amount -= 500
   }
+  while (amount >= 100) {
+    result[2] += 1
+    amount -= 100
+  }
+  while (amount >= 50) {
+    result[1] += 1
+    amount -= 50
+  }
   while (amount >= 25) {
     result[0] += 1
     amount -= 25
@@ -39,8 +47,22 @@ const ls = <L extends keyof LocalStored>(
     : JSON.parse(localStorage.getItem(key) as string)
 
 
+const stagger = (callbacks: Array<() => void>, delay: number) => {
+  let i = 0
+  const fn = () => {
+    if (i < callbacks.length) {
+      callbacks[i]()
+      i += 1
+      setTimeout(fn, delay)
+    }
+  }
+
+  fn()
+}
+
 export {
   ls,
-  amountToChips
+  amountToChips,
+  stagger
 }
 

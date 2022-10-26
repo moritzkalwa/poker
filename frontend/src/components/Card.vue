@@ -3,6 +3,9 @@ import { toRefs, watch, ref } from "vue"
 
 const props = defineProps<{
     showFront: boolean,
+    face?: string,
+    value?: string,
+    highlighted?: boolean
 }>()
 
 const { showFront } = toRefs(props)
@@ -22,11 +25,12 @@ watch(showFront, () => {
         animateShowFront,
         animateShowBack,
         showFront,
-        showBack: !showFront
+        showBack: !showFront,
+        highlighted
     }"
     >
         <img class="back" src="/cards/back-red.png">
-        <img class="front" src="/cards/heart_queen.png">
+        <img v-if="face && value" class="front" :src="`/cards/${face}_${value}.png`">
     </div>
 </template>
 
@@ -36,6 +40,9 @@ watch(showFront, () => {
     width: 4vw;
     height: calc(4vw / 0.68);
     position: relative;
+    &.highlighted>img {
+        box-shadow: 0px 0px 5px 3px #EFFF20;
+    }
     &>* {
         width: 4vw;
         height: calc(4vw / 0.68);

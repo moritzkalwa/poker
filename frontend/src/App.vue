@@ -9,7 +9,7 @@ import Controls from "./components/Controls.vue"
 
 import Poker from "../poker"
 
-import { ref, provide, onBeforeUnmount } from 'vue'
+import { ref, provide, onBeforeUnmount, computed } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import type { Socket } from "socket.io-client"
 import { io } from "socket.io-client"
@@ -20,7 +20,10 @@ let socket: Socket = io(`http://${location.hostname}:3020`)
 socket.on("connect", () => (socketConnected.value = true))
 socket.on("disconnect", () => (socketConnected.value = false))
 
-const poker = new Poker(socket, "test")
+const poker = new Poker(socket, "test");
+(document as any).poker = poker
+
+const state = computed(() => poker.state.value)
 
 provide("poker", poker)
 
@@ -28,20 +31,18 @@ provide("socket", socket)
 provide("socketConnected", socketConnected)
 onBeforeUnmount(() => socket.close())
 
-const amount = ref(1675);
-(document as any).amount = amount
+const players = computed(() => poker.state.value.members)
 
 </script>
 
 
 <template>
   <div class="wrapper">
+    {{state}}
     <div id="table">
       <River />
       <Deck />
-      <div class="players">
-        <Player v-for="player in poker.state.value.members" :id="player.id"/>
-      </div>
+        <Player v-for="player in players" :id="player.id" :key="player.id"/>
     </div>
   <Controls />
   </div>

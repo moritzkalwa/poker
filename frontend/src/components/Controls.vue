@@ -2,10 +2,28 @@
 import ChipDisplay from './ChipDisplay.vue';
 import type Poker from "../../poker"
 
-import { inject } from "vue"
+import { inject, computed } from "vue"
 
 const poker = inject<Poker>('poker')
+const player = computed(() => poker?.state.value.members.find((member) => member.id === poker.ownId))
 
+const canBet = computed(() => (poker?.selectedAmount.value ?? 0) > (poker?.state.value.currentBet ?? 0))
+const bet = () => {
+  poker?.playerAction('bet')
+}
+
+const callAction = computed(() => {
+  if (poker?.state.value.currentBet === player.value?.bet) return 'Check'
+  if ((poker?.state.value.currentBet ?? 0) >= (player.value?.budget ?? 0)) return 'All In'
+  return 'Call'
+})
+const callCheck = () => {
+  poker?.playerAction('call')
+}
+
+const fold = () => {
+  poker?.playerAction('fold')
+}
 
 </script>
 
@@ -15,9 +33,9 @@ const poker = inject<Poker>('poker')
           <ChipDisplay />
         </div>
         <div class="round-controls">
-          <button @click="poker?.playerAction('bet')">Bet</button>
-          <button @click="poker?.playerAction('call')">Call</button>
-          <button @click="poker?.playerAction('fold')">Fold</button>
+          <button :class="{ active: canBet}" @click="bet">Bet</button>
+          <button class="active" @click="callCheck">{{callAction}}</button>
+          <button class="active" @click="fold">Fold</button>
         </div>
     </div>
 </template>
@@ -54,7 +72,9 @@ const poker = inject<Poker>('poker')
     background-color: brown;
     border-radius: 30px;
     flex-grow: 1;
-    cursor: pointer;
+    &.active {
+      cursor: pointer;
+    }
   }
 }
 </style>

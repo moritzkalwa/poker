@@ -43,6 +43,8 @@ const player = computed(() => poker?.state.value.members.find((member) => member
 const cards = computed(() => player.value?.cards)
 const playerIndex = computed(() => poker?.state.value.members.findIndex((member) => member.id === props.id))
 const playingMember = computed(() => player.value!.id === poker?.state.value.playingMemberId)
+const bigBlind = computed(() => player.value!.id === poker?.state.value.bigBlindId)
+const smallBlind = computed(() => player.value!.id === poker?.state.value.smallBlindId)
 
 const cardsHidden = ref(!player.value?.playing ?? true)
 </script>
@@ -59,7 +61,7 @@ const cardsHidden = ref(!player.value?.playing ?? true)
     :data-index="playerIndex"
     >
         <div class="player-info"
-            :class="{ playingMember }"
+            :class="{ playingMember, bigBlind, smallBlind }"
         >
             <img src="/player.png">
             <div class="player-info-text">
@@ -76,6 +78,24 @@ const cardsHidden = ref(!player.value?.playing ?? true)
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
+    &.bigBlind:after {
+        content: "";
+        width: 8vmin;
+        height: 8vmin;
+        border: 5px dashed blue;
+        position: absolute;
+        z-index: 3;
+        border-radius: 50%;
+    }
+    &.smallBlind:after {
+        content: "";
+        width: 8vmin;
+        height: 8vmin;
+        border: 5px dashed yellow;
+        position: absolute;
+        z-index: 3;
+        border-radius: 50%;
+    }
     &.playingMember>img {
         border-color: red;
     }

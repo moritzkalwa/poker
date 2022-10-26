@@ -32,6 +32,8 @@ class Room {
 
   private roundState = -1
   private playingMemberId: string | undefined
+  private bigBlindId: string | undefined
+  private smallBlindId: string | undefined
   private lastBetId: string | undefined
   private currentBet = 0
   private pool = 0
@@ -67,6 +69,8 @@ class Room {
         roomID: this.roomID,
         roundState: this.roundState,
         playingMemberId: this.playingMemberId,
+        smallBlindId: this.smallBlindId,
+        bigBlindId: this.bigBlindId,
         currentBet: this.currentBet,
         cards: this.cards
       }
@@ -91,6 +95,7 @@ class Room {
   }
 
   getMember = (id: string) => this.members.find(m => m.client.id === id)
+  getMemberIndex = (id: string) => this.members.findIndex(m => m.client.id === id)
   removeMember = (id: string) => (this.members = this.members.filter(m => m.client.id !== id))
 
   async updateState() {
@@ -101,17 +106,34 @@ class Room {
     console.log('new game')
     this.deck = new Deck()
     this.cards = [this.deck.newCard(), this.deck.newCard(), this.deck.newCard(), this.deck.newCard(), this.deck.newCard()]
-    this.playingMemberId = this.members[0].client.id
+    console.log(this.members)
+    if(this.bigBlindId) {
+      const bigBlindIndex = this.getMemberIndex(this.bigBlindId)
+      this.bigBlindId = this.members[(bigBlindIndex + 1) % this.members.length].client.id
+      this.smallBlindId = this.members[(bigBlindIndex) % this.members.length].client.id
+      this.playingMemberId = this.bigBlindId
+    } else {
+      this.playingMemberId = this.members[0].client.id
+      this.bigBlindId = this.playingMemberId
+      const bigBlindIndex = this.getMemberIndex(this.bigBlindId)
+      this.smallBlindId = this.members[this.members.length - bigBlindIndex - 1].client.id
+    }
     this.lastBetId = this.members[0].client.id
     this.roundState = 0
-    this.currentBet = 0
-    this.pool = 0
+    this.currentBet = 50
+    this.pool = 75
     this.members.forEach((member, index) => {
       this.members[index].playing = true
       this.playerCards[member.client.id] = [this.deck.newCard(), this.deck.newCard()]
       this.playerBets[member.client.id] = 0
     })
+    this.playerBets[this.bigBlindId] += 50
+    this.playerBudget[this.bigBlindId] -= 50
+    this.playerBets[this.smallBlindId] += 25
+    this.playerBudget[this.smallBlindId] -= 25
+
     this.broadcast.emit("newGame")
+    this.updateState()
   }
 
   join(client: Socket, name: string) {
@@ -153,21 +175,21 @@ class Room {
     if (client.id !== this.playingMemberId) return
     switch (action) {
       case 'bet':
-        if (amount && amount > this.currentBet && amount <= this.playerBudget[client.id]) {
+        if (amount && amount + this.playerBets[client.id] > this.currentBet && amount <= this.playerBudget[client.id]) {
           this.lastBetId = client.id
           this.playerBets[client.id] += amount
           this.pool += amount
           this.playerBudget[client.id] -= amount
-          this.currentBet = amount
+          this.currentBet += amount
         } else {
           this.playerBudget[client.id] = 0
         }
         break;
       case 'call':
-        if (this.currentBet <= this.playerBudget[client.id]) {
-          this.playerBets[client.id] += this.currentBet
-          this.playerBudget[client.id] -= this.currentBet
-          this.pool += this.currentBet
+        if (this.currentBet <= this.playerBudget[client.id] + this.playerBets[client.id]) {
+          this.pool += this.currentBet - this.playerBets[client.id]
+          this.playerBets[client.id] += this.currentBet - this.playerBets[client.id]
+          this.playerBudget[client.id] -= this.currentBet - this.playerBets[client.id]
         } else {
           this.playerBudget[client.id] = 0
         }
@@ -209,7 +231,7 @@ class Room {
         majorResults.sort((a, b) => b.handWorth.minor - a.handWorth.minor)
         const minorResults = results.filter((result) => result.handWorth.minor === majorResults[0].handWorth.minor)
 
-        //todo: handle equal outcome
+        //todo: handle equal outcome and all in
         const winningResult = minorResults[0]
 
         this.playerBudget[winningResult.id] += this.pool
@@ -218,13 +240,12 @@ class Room {
 
         this.roundState += 1
 
-        setTimeout(this.newGame, 120*1000)
+        setTimeout(this.newGame, 25*1000)
       } else {
         this.roundState += 1
         if ( this.roundState == 1) this.broadcast.emit("flop")
         if ( this.roundState == 2) this.broadcast.emit("turn")
         if ( this.roundState == 3) this.broadcast.emit("river")
-        this.currentBet = 0
         this.playingMemberId = this.lastBetId
       }
     } else {

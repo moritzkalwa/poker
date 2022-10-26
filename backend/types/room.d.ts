@@ -26,6 +26,8 @@ export interface RoomState {
   roomID: string
   members: Array<PublicMember>
   playingMemberId: string | undefined
+  bigBlindId: string | undefined
+  smallBlindId: string | undefined
   roundState: RoundState
   currentBet: number
   cards?: [Card, Card, Card, Card, Card]

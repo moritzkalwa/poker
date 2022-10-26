@@ -72,6 +72,8 @@ export default class Poker {
       roundState: -1,
       playingMemberId: undefined,
       currentBet: 0,
+      bigBlindId: undefined,
+      smallBlindId: undefined
     })
 
     this.handlers.push(

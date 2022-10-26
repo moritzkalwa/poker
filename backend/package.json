@@ -7,7 +7,7 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "dev": "tsc -p . & set PORT=3020& node server.js",
-    "build": "npx tsc -t es5 server.ts",
+    "build": "npx tsc -p .",
     "start": "node server.js"
   },
   "author": "",

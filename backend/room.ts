@@ -147,15 +147,6 @@ class Room {
     this.updateState()
   }
 
-  /*
-  becomeHost(client: Socket) {
-    if(!this.host && this.getMember(client.id)) this.host = { 
-      id: client.id, 
-      name: this.getMember(client.id)?.name ?? '', 
-    }
-    this.updateState()
-  }*/
-
   playerAction(client: Socket, action: PlayerActions, amount?: number) {
     console.log(client.id, action, amount)
     console.log('round state', this.roundState)

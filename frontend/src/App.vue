@@ -39,7 +39,6 @@ const players = computed(() => poker.state.value.members)
 
 <template>
   <div class="wrapper">
-  {{state}}
     <div id="table">
       <River />
       <Deck />

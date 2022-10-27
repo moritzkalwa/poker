@@ -106,11 +106,9 @@ export default class Poker {
 
   private eventHandler<E extends keyof BackendEmits>(event: E) {
     return (fn: BackendEmits[E]): SocketOff => {
-      //@ts-expect-error no idea
       this.socket.on(event, fn)
 
       return () => {
-        //@ts-expect-error no idea
         this.socket.off(event, fn)
       }
     }

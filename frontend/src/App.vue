@@ -17,7 +17,7 @@ import { ls, amountToChips } from '../util';
 
 const socketConnected = ref(false)
 const isDev = process.env.NODE_ENV === 'development'
-let socket: Socket = io(isDev ? `http://${location.hostname}:3020` : 'https://116.203.97.150')
+let socket: Socket = io(isDev ? `http://${location.hostname}:3020` : 'https://poker.moritzkalwa.dev')
 socket.on("connect", () => (socketConnected.value = true))
 socket.on("disconnect", () => (socketConnected.value = false))
 

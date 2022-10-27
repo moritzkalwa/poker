@@ -38,7 +38,11 @@ export default (port: number): Promise<void> => {
 
       room(io)
 
-      server.listen(port).on("listening", res).on("error", rej)
+      if (isDev) {
+        server.listen(port).on("listening", res).on("error", rej)
+      } else {
+        server.listen(port, '0.0.0.0').on("listening", res).on("error", rej)
+      }
     }
   })
 }

@@ -7,7 +7,7 @@ import { inject, computed } from "vue"
 const poker = inject<Poker>('poker')
 const player = computed(() => poker?.state.value.members.find((member) => member.id === poker.ownId))
 
-const canBet = computed(() => (poker?.selectedAmount.value ?? 1) + player.value!.roundBet > (poker?.state.value.currentBet ?? 0));
+const canBet = computed(() => (poker?.selectedAmount.value ?? 1) + (player.value?.roundBet ?? 0) > (poker?.state.value.currentBet ?? 0));
 (document as any).canBet = canBet
 const bet = () => {
   if (canBet.value)
@@ -16,7 +16,7 @@ const bet = () => {
 
 const callAction = computed(() => {
   if (poker?.state.value.currentBet === player.value?.roundBet) return 'Check'
-  if ((poker?.state.value.currentBet ?? 0)  - player.value!.roundBet >= (player.value?.budget ?? 0)) return 'All In'
+  if ((poker?.state.value.currentBet ?? 0)  - (player.value?.roundBet ?? 0) >= (player.value?.budget ?? 0)) return 'All In'
   return 'Call'
 })
 const callCheck = () => {

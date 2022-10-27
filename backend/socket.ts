@@ -17,14 +17,12 @@ export default (port: number): Promise<void> => {
 
       if (isDev) {
         server = http.createServer()
-        console.log('http server created')
       } else {
         var options = {
           key: readFileSync('/etc/ssl/private/private.key.pem'),
           cert: readFileSync('/etc/ssl/certs/domain.cert.pem')
         }
         server = https.createServer(options)
-        console.log('https server created')
       }
 
       const io = new Server(server, {

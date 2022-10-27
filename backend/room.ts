@@ -39,6 +39,7 @@ class Room {
   private pool = 0
   private playerBudget: Record<string, number> = {}
   private playerBets: Record<string, number> = {}
+  private playerRoundBets: Record<string, number> = {}
   private playerCards: Partial<Record<string, [Card, Card]>> = {}
 
   private cards: [Card, Card, Card, Card, Card]
@@ -62,6 +63,7 @@ class Room {
             playing: member.playing,
             budget: this.playerBudget[member.client.id], 
             bet: this.playerBets[member.client.id],
+            roundBet: this.playerRoundBets[member.client.id],
             cards: this.playerCards[member.client.id]
           }
         }),
@@ -118,7 +120,7 @@ class Room {
       const bigBlindIndex = this.getMemberIndex(this.bigBlindId)
       this.smallBlindId = this.members[this.members.length - bigBlindIndex - 1].client.id
     }
-    this.lastBetId = this.members[0].client.id
+    this.lastBetId = this.playingMemberId
     this.roundState = 0
     this.currentBet = 50
     this.pool = 75
@@ -126,10 +128,14 @@ class Room {
       this.members[index].playing = true
       this.playerCards[member.client.id] = [this.deck.newCard(), this.deck.newCard()]
       this.playerBets[member.client.id] = 0
+      this.playerRoundBets[member.client.id] = 0
     })
     this.playerBets[this.bigBlindId] += 50
+    this.playerRoundBets[this.bigBlindId] += 50
     this.playerBudget[this.bigBlindId] -= 50
+
     this.playerBets[this.smallBlindId] += 25
+    this.playerRoundBets[this.smallBlindId] += 25
     this.playerBudget[this.smallBlindId] -= 25
 
     this.broadcast.emit("newGame")
@@ -140,6 +146,7 @@ class Room {
     console.log('Member joined')
     this.playerBudget[client.id] = 1500
     this.playerBets[client.id] = 0
+    this.playerRoundBets[client.id] = 0
     this.members.push({ client, name, playing: false })
     client.join(this.roomID)
 
@@ -158,7 +165,10 @@ class Room {
     console.log('Member left')
 
     client.leave(this.roomID)
+    this.getMember(client.id)!.playing = false
     this.removeMember(client.id)
+
+    //todo: handle only one playing player left
 
     const memberAmount = Object.keys(this.members).length
     if (memberAmount <= 0) {
@@ -175,21 +185,23 @@ class Room {
     if (client.id !== this.playingMemberId) return
     switch (action) {
       case 'bet':
-        if (amount && amount + this.playerBets[client.id] > this.currentBet && amount <= this.playerBudget[client.id]) {
+        if (amount && amount > this.currentBet && amount <= this.playerBudget[client.id]) {
           this.lastBetId = client.id
           this.playerBets[client.id] += amount
+          this.playerRoundBets[client.id] += amount
           this.pool += amount
           this.playerBudget[client.id] -= amount
-          this.currentBet += amount
+          this.currentBet = amount
         } else {
           this.playerBudget[client.id] = 0
         }
         break;
       case 'call':
-        if (this.currentBet <= this.playerBudget[client.id] + this.playerBets[client.id]) {
-          this.pool += this.currentBet - this.playerBets[client.id]
-          this.playerBets[client.id] += this.currentBet - this.playerBets[client.id]
-          this.playerBudget[client.id] -= this.currentBet - this.playerBets[client.id]
+        if (this.currentBet - this.playerRoundBets[client.id] <= this.playerBudget[client.id]) {
+          this.pool += this.currentBet - this.playerRoundBets[client.id]
+          this.playerBets[client.id] += this.currentBet - this.playerRoundBets[client.id]
+          this.playerBudget[client.id] -= this.currentBet - this.playerRoundBets[client.id]
+          this.playerRoundBets[client.id] = this.currentBet 
         } else {
           this.playerBudget[client.id] = 0
         }
@@ -214,6 +226,7 @@ class Room {
     if(playingMembers.length === 1) {
       const winnerId = playingMembers[0].client.id
       this.playerBudget[winnerId] += this.pool
+
       this.newGame()
     }
 
@@ -223,6 +236,7 @@ class Room {
           return {id: member.client.id, handWorth: getHandWorth(this.cards, this.playerCards[member.client.id])}
         })
 
+        console.log('---Results---')
         console.log(results)
 
         results.sort((a, b) => b.handWorth.major - a.handWorth.major)
@@ -234,19 +248,24 @@ class Room {
         //todo: handle equal outcome and all in
         const winningResult = minorResults[0]
 
+        console.log(this.pool)
         this.playerBudget[winningResult.id] += this.pool
 
         this.broadcast.emit("announceWinner", winningResult)
 
         this.roundState += 1
 
-        setTimeout(this.newGame, 25*1000)
+        setTimeout(this.newGame, 15*1000)
       } else {
         this.roundState += 1
         if ( this.roundState == 1) this.broadcast.emit("flop")
         if ( this.roundState == 2) this.broadcast.emit("turn")
         if ( this.roundState == 3) this.broadcast.emit("river")
         this.playingMemberId = this.lastBetId
+        this.currentBet = 0
+        playingMembers.forEach((member) => {
+          this.playerRoundBets[member.client.id] = 0
+        })
       }
     } else {
       this.playingMemberId = playingMembers[newPlayerIndex % playingMembers.length].client.id

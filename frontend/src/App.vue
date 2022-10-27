@@ -16,7 +16,8 @@ import { io } from "socket.io-client"
 import { ls, amountToChips } from '../util';
 
 const socketConnected = ref(false)
-let socket: Socket = io(`http://${location.hostname}:3020`)
+const isDev = process.env.NODE_ENV === 'development'
+let socket: Socket = io(isDev ? `http://${location.hostname}:3020` : '')
 socket.on("connect", () => (socketConnected.value = true))
 socket.on("disconnect", () => (socketConnected.value = false))
 
@@ -38,6 +39,7 @@ const players = computed(() => poker.state.value.members)
 
 <template>
   <div class="wrapper">
+  {{state}}
     <div id="table">
       <River />
       <Deck />

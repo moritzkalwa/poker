@@ -12,6 +12,7 @@ export interface PokerHandlerEvents {
   turn: () => void
   river: () => void
   announceWinner: (result: Result) => void
+  playerAction: () => void
 }
 
 export class PokerHandler extends EventTarget {
@@ -152,5 +153,8 @@ export default class Poker {
   onRiver = this.eventHandler("river")
   onAnnounceWinner = this.eventHandler("announceWinner")
 
-  playerAction = (action: PlayerActions) => this.roomEmit('playerAction', { action, amount: this.selectedAmount.value })
+  playerAction = (action: PlayerActions) => {
+    this.roomEmit('playerAction', { action, amount: this.selectedAmount.value })
+    this.pokerHandler.emit('playerAction')
+  }
 }

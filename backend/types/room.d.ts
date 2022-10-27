@@ -12,6 +12,7 @@ export interface PublicMember extends Omit<Member, "client"> {
   id: string
   budget: number
   bet: number
+  roundBet: number
 }
 
 export enum RoundState {

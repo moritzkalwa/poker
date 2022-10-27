@@ -96,6 +96,9 @@ const cardsHidden = ref(!player.value?.playing ?? true)
         z-index: 3;
         border-radius: 50%;
     }
+    &.playingMember:after {
+        animation: rotate 10s infinite linear;
+    }
     &.playingMember>img {
         border-color: red;
     }
@@ -107,6 +110,11 @@ const cardsHidden = ref(!player.value?.playing ?? true)
         background-color: white;
         z-index: 2;
     }
+}
+
+@keyframes rotate {
+    0% {transform: rotate(0deg);}
+    100% {transform: rotate(360deg)}
 }
 .player-info-text {
     display: flex;

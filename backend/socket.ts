@@ -1,6 +1,8 @@
-import { createServer } from "http"
+import *  as http from "http"
+import *  as https from "https"
 import { Server } from "socket.io"
 import room from "./room"
+import { readFileSync } from "fs"
 
 import debug from "debug"
 const log = debug("resync:server")
@@ -10,8 +12,20 @@ let origin = '*'
 export default (port: number): Promise<void> => {
   return new Promise((res, rej) => {
     {
-      const httpServer = createServer()
-      const io = new Server(httpServer, {
+      let server
+      const isDev = process.env.NODE_ENV === 'development'
+
+      if (isDev) {
+        server = http.createServer()
+      } else {
+        var options = {
+          key: readFileSync('/etc/ssl/private/private.key.pem'),
+          cert: readFileSync('/etc/ssl/certs/domain.cert.pem')
+        }
+        server = https.createServer(options)
+      }
+
+      const io = new Server(server, {
         cors: { origin },
       })
 
@@ -22,7 +36,7 @@ export default (port: number): Promise<void> => {
 
       room(io)
 
-      httpServer.listen(port).on("listening", res).on("error", rej)
+      server.listen(port).on("listening", res).on("error", rej)
     }
   })
 }

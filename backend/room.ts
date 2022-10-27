@@ -228,6 +228,8 @@ class Room {
       this.playerBudget[winnerId] += this.pool
 
       this.newGame()
+
+      return
     }
 
     if(playingMembers[newPlayerIndex % playingMembers.length].client.id === this.lastBetId) {

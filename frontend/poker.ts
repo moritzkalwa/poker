@@ -30,7 +30,6 @@ export class PokerHandler extends EventTarget {
   emit<U extends keyof PokerHandlerEvents>(
     event: U, ...args: Parameters<PokerHandlerEvents[U]>
   ): boolean {
-    console.log(event, args)
     return this.dispatchEvent(new CustomEvent<Parameters<PokerHandlerEvents[U]>>(event, {detail: args}))
   }
 
@@ -79,10 +78,8 @@ export default class Poker {
 
     this.handlers.push(
       this.onState(state => {
-        console.log(state)
         this.budget.value = state.members.find((member) => member.id === this.socket.id)!.budget
         this.state.value = state
-        //console.log(state)
       }),
       this.onFolded(({ id }) => {
         this.pokerHandler.emit("fold", id)
@@ -116,7 +113,6 @@ export default class Poker {
 
   joinRoom = async (name: string): Promise<void> => {
     const join = () => {
-      console.log('hi')
       return new Promise<void>(res => {
         this.roomEmit("joinRoom", { name }, state => {
           this.state.value = state

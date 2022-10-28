@@ -144,7 +144,7 @@ class Room {
 
   join(client: Socket, name: string) {
     console.log('Member joined')
-    this.playerBudget[client.id] = 1600
+    this.playerBudget[client.id] = 1500
     this.playerBets[client.id] = 0
     this.playerRoundBets[client.id] = 0
     this.members.push({ client, name, playing: false })

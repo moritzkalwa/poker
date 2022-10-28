@@ -97,7 +97,6 @@ export default class Poker {
         this.pokerHandler.emit("announceWinner",result)
       })
     )
-    this.joinRoom((Math.random() + 1).toString(36).substring(7))
   }
   destroy = (): void => this.handlers.forEach(off => off())
 

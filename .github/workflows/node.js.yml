@@ -37,9 +37,9 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Deploy
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Deploy
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'

@@ -74,7 +74,7 @@ const signup = () => {
     transform: translate(-50%, -50%);
     width: 60vw;
     aspect-ratio: calc(1920 / 1080);
-    background-image: url("parchment.png");
+    background-image: url("/parchment.png");
     background-size: 100% 100%;
 }
 .contract-wrapper {

@@ -44,8 +44,8 @@ export function getCardValue(card: Card): number {
     if (card.value === '9') return 9
     if (card.value === '10') return 10
     if (card.value === 'jack') return 11
-    if (card.value === 'king') return 12
-    if (card.value === 'queen') return 13
+    if (card.value === 'queen') return 12
+    if (card.value === 'king') return 13
     if (card.value === '1') return 14
     return 0
 }

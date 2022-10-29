@@ -66,6 +66,8 @@ const signup = () => {
   overflow: hidden;
   box-sizing: border-box;
   background: radial-gradient(circle at center, grey, black);
+  z-index: -2;
+  position: absolute;
 }
 .signup {
     position: absolute;

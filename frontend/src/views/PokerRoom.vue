@@ -6,6 +6,7 @@ import Player from "@/components/Player.vue"
 import Deck from "@/components/Deck.vue"
 import Chip from "@/components/Chip.vue"
 import Controls from "@/components/Controls.vue"
+import BettingSheet from "@/components/BettingSheet.vue"
 import Table from "@/components/Table.vue"
 
 import Poker from "@/../poker"
@@ -63,6 +64,7 @@ const players = computed(() => poker.state.value.members)
         <Player v-for="player in players" :id="player.id" :key="player.id"/>
     </Table>
   <Controls />
+  <BettingSheet />
   </div>
 </template>
 
@@ -76,5 +78,7 @@ const players = computed(() => poker.state.value.members)
   overflow: hidden;
   box-sizing: border-box;
   background: radial-gradient(circle at center, grey, black);
+  z-index: -2;
+  position: absolute;
 }
 </style>

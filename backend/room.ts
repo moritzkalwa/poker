@@ -132,9 +132,11 @@ class Room {
     })
     this.playerBets[this.bigBlindId] += 50
     this.playerRoundBets[this.bigBlindId] += 50
+    this.playerRoundBets[this.bigBlindId] += 50
     this.playerBudget[this.bigBlindId] -= 50
 
     this.playerBets[this.smallBlindId] += 25
+    this.playerRoundBets[this.smallBlindId] += 25
     this.playerRoundBets[this.smallBlindId] += 25
     this.playerBudget[this.smallBlindId] -= 25
 
@@ -231,6 +233,8 @@ class Room {
 
       return
     }
+
+    console.log('pool ', this.pool)
 
     if(playingMembers[newPlayerIndex % playingMembers.length].client.id === this.lastBetId) {
       if (this.roundState === 3) {

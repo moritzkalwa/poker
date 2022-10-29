@@ -5,7 +5,10 @@ import type Poker from "../../poker"
 import { inject, computed } from "vue"
 
 const poker = inject<Poker>('poker')
-const players = computed(() => poker?.state.value.members)
+const sortedPlayers = computed(() => {
+    if (!poker) return [];
+    return [...poker.state.value.members].sort((a, b) => b.budget - a.budget)
+})
 
 </script>
 
@@ -13,7 +16,7 @@ const players = computed(() => poker?.state.value.members)
     <div id="sheet">
         <h2>Betting sheet</h2>
         <TransitionGroup name="list" tag="ul">
-            <li v-for="player in players?.sort((a, b) => b.budget - a.budget)" :key="player.id">
+            <li v-for="player in sortedPlayers" :key="player.id">
                 <h3>{{player.name}}</h3>
                 <h3>{{player.budget}}$</h3>
             </li>

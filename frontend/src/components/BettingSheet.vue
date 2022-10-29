@@ -63,4 +63,9 @@ const players = computed(() => poker?.state.value.members)
   opacity: 0;
   transform: translateX(30px);
 }
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
 </style>

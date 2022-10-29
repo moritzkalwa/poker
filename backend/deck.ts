@@ -51,7 +51,6 @@ export function getCardValue(card: Card): number {
 }
 
 export function getHandWorth(deckCards: [Card, Card, Card, Card, Card], playerCards: [Card, Card]): CardWorth {
-    console.log(deckCards, playerCards)
     //royal flush
     //straight flush
     //four of a kind

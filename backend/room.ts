@@ -108,7 +108,6 @@ class Room {
     console.log('new game')
     this.deck = new Deck()
     this.cards = [this.deck.newCard(), this.deck.newCard(), this.deck.newCard(), this.deck.newCard(), this.deck.newCard()]
-    console.log(this.members)
     if(this.bigBlindId) {
       const bigBlindIndex = this.getMemberIndex(this.bigBlindId)
       this.bigBlindId = this.members[(bigBlindIndex + 1) % this.members.length].client.id
@@ -132,11 +131,9 @@ class Room {
     })
     this.playerBets[this.bigBlindId] += 50
     this.playerRoundBets[this.bigBlindId] += 50
-    this.playerRoundBets[this.bigBlindId] += 50
     this.playerBudget[this.bigBlindId] -= 50
 
     this.playerBets[this.smallBlindId] += 25
-    this.playerRoundBets[this.smallBlindId] += 25
     this.playerRoundBets[this.smallBlindId] += 25
     this.playerBudget[this.smallBlindId] -= 25
 
@@ -200,6 +197,7 @@ class Room {
         break;
       case 'call':
         if (this.currentBet - this.playerRoundBets[client.id] <= this.playerBudget[client.id]) {
+          console.log('info', this.currentBet, this.playerRoundBets[client.id])
           this.pool += this.currentBet - this.playerRoundBets[client.id]
           this.playerBets[client.id] += this.currentBet - this.playerRoundBets[client.id]
           this.playerBudget[client.id] -= this.currentBet - this.playerRoundBets[client.id]

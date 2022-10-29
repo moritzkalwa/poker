@@ -203,6 +203,9 @@ class Room {
           this.playerBudget[client.id] -= this.currentBet - this.playerRoundBets[client.id]
           this.playerRoundBets[client.id] = this.currentBet 
         } else {
+          this.pool += this.playerBudget[client.id]
+          this.playerBets[client.id] += this.playerBudget[client.id]
+          this.playerRoundBets[client.id] = this.currentBet
           this.playerBudget[client.id] = 0
         }
         break;

@@ -46,6 +46,12 @@ const playingMember = computed(() => player.value!.id === poker?.state.value.pla
 const bigBlind = computed(() => player.value!.id === poker?.state.value.bigBlindId)
 const smallBlind = computed(() => player.value!.id === poker?.state.value.smallBlindId)
 
+watch(cards, () => {
+    if (player.value?.id === poker?.ownId) {
+        console.log('karten', cards.value)
+    }
+})
+
 const cardsHidden = ref(!player.value?.playing ?? true)
 </script>
 

@@ -29,6 +29,7 @@ class Room {
 
   public members: Array<Member> = []
   public host: PublicMember | undefined
+  private roundStartTimeout: NodeJS.Timeout | undefined
 
   private roundState = -1
   private playingMemberId: string | undefined
@@ -64,7 +65,7 @@ class Room {
             budget: this.playerBudget[member.client.id], 
             bet: this.playerBets[member.client.id],
             roundBet: this.playerRoundBets[member.client.id],
-            cards: this.playerCards[member.client.id]
+            cards: undefined
           }
         }),
         host: this.host,
@@ -74,7 +75,7 @@ class Room {
         smallBlindId: this.smallBlindId,
         bigBlindId: this.bigBlindId,
         currentBet: this.currentBet,
-        cards: this.cards
+        cards: undefined
       }
     })()
   }
@@ -101,7 +102,33 @@ class Room {
   removeMember = (id: string) => (this.members = this.members.filter(m => m.client.id !== id))
 
   async updateState() {
-    this.broadcast.emit("state", await this.state)
+    let cardsShown = 0
+    if (this.roundState == 1) cardsShown = 3
+    if (this.roundState == 2) cardsShown = 4
+    if (this.roundState >= 3) cardsShown = 5
+    for (let _member of this.members) {
+      _member.client.emit("state", {
+        members: this.members.map((member) => {
+          return { 
+            id: member.client.id, 
+            name: member.name, 
+            playing: member.playing,
+            budget: this.playerBudget[member.client.id], 
+            bet: this.playerBets[member.client.id],
+            roundBet: this.playerRoundBets[member.client.id],
+            cards: (_member.client.id === member.client.id) || (this.roundState === 4) ? this.playerCards[member.client.id] : undefined
+          }
+        }),
+        host: this.host,
+        roomID: this.roomID,
+        roundState: this.roundState,
+        playingMemberId: this.playingMemberId,
+        smallBlindId: this.smallBlindId,
+        bigBlindId: this.bigBlindId,
+        currentBet: this.currentBet,
+        cards: this.cards?.slice(0, cardsShown)
+      })
+    }
   }
 
   newGame = () => {
@@ -150,7 +177,13 @@ class Room {
     client.join(this.roomID)
 
     if (this.roundState === -1 && this.members.length > 1) {
-      this.newGame()
+      if (this.roundStartTimeout) {
+        clearTimeout(this.roundStartTimeout)
+      }
+      setTimeout(() => {
+        this.roundStartTimeout = undefined
+        this.newGame()
+      }, 10000)
     }
 
     client.on("disconnect", () => this.leave(client))

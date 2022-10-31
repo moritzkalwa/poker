@@ -1,7 +1,7 @@
 import type { Server } from "socket.io"
 import type { Socket } from "socket.io-client"
 
-import type { EventNotification, RoomState } from "./room"
+import type { EventNotification, RoomState, PublicRoom } from "./room"
 import type { CardWorth } from "../deck"
 
 type Callback<A = void> = (x: A) => void
@@ -22,6 +22,7 @@ export interface BackendEmits {
   turn: BackendEmitterBase
   river: BackendEmitterBase
   announceWinner: BackendEmitterBase<Result>
+  rooms: BackendEmitterBase< { rooms: Array<PublicRoom>} >
 }
 
 interface RoomEmitBase {

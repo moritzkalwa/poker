@@ -10,7 +10,6 @@ const router = useRouter()
 const username = ref('')
 
 const signup = () => {
-    console.log(username.value)
     if (!username.value) return
     
     

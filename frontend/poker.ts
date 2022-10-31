@@ -80,7 +80,6 @@ export default class Poker {
       this.onState(state => {
         this.budget.value = state.members.find((member) => member.id === this.socket.id)!.budget
         this.state.value = state
-        console.log('pokerkarte', this.state.value.members.find((_m) => _m.id === this.ownId)?.cards)
       }),
       this.onFolded(({ id }) => {
         this.pokerHandler.emit("fold", id)

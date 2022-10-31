@@ -11,11 +11,10 @@ import Table from "@/components/Table.vue"
 
 import Poker from "@/../poker"
 
-import { ref, provide, onBeforeUnmount, computed } from 'vue'
+import { ref, provide, inject, onBeforeUnmount, computed } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
-import type { Socket } from "socket.io-client"
-import { io } from "socket.io-client"
 import { ls, amountToChips } from '@/../util';
+import type { Socket } from "socket.io-client"
 
 const route = useRoute()
 const router = useRouter()
@@ -30,12 +29,7 @@ if (!name) {
   })
 }
 
-const socketConnected = ref(false)
-const isDev = process.env.NODE_ENV === 'development'
-let socket: Socket = io(isDev ? `http://${location.hostname}:3020` : 'https://server.moritzkalwa.dev')
-socket.on("connect", () => (socketConnected.value = true))
-socket.on("disconnect", () => (socketConnected.value = false))
-
+const socket: Socket = inject("socket")!
 
 const { roomID } = route.params as Record<string, string>
 
@@ -46,10 +40,6 @@ if (name) poker.joinRoom(name);
 const state = computed(() => poker.state.value)
 
 provide("poker", poker)
-
-provide("socket", socket)
-provide("socketConnected", socketConnected)
-onBeforeUnmount(() => socket.close())
 
 const players = computed(() => poker.state.value.members)
 

@@ -15,6 +15,12 @@ export interface PublicMember extends Omit<Member, "client"> {
   roundBet: number
 }
 
+export interface PublicRoom {
+  roomID: string
+  memberCount: number
+  roundState: RoundState
+}
+
 export enum RoundState {
   Waiting = -1,
   Flop,

@@ -22,16 +22,22 @@ const getNewRandom = () => {
   return id
 }
 
+const roomInfo = () => {
+  return {rooms: Object.keys(rooms).map((_roomID) => { 
+    return { roomID: _roomID, memberCount: rooms[_roomID].members.length, roundState: rooms[_roomID].roundState}
+  }) }
+}
+
 class Room {
   readonly roomID: string
-  private io: SocketBackend
+  readonly io: SocketBackend
   readonly broadcast: BroadcastOperator<BackendEmits, any>
 
   public members: Array<Member> = []
   public host: PublicMember | undefined
   private roundStartTimeout: NodeJS.Timeout | undefined
 
-  private roundState = -1
+  public roundState = -1
   private playingMemberId: string | undefined
   private bigBlindId: string | undefined
   private smallBlindId: string | undefined
@@ -188,6 +194,8 @@ class Room {
 
     client.on("disconnect", () => this.leave(client))
 
+    this.io.emit('rooms', roomInfo())
+
     this.updateState()
     this.notify("join", client)
   }
@@ -207,6 +215,8 @@ class Room {
       console.log(`Deleted room ${this.roomID}`)
       delete rooms[this.roomID]
     }
+
+    this.io.emit('rooms', roomInfo())
 
     this.updateState()
   }
@@ -319,12 +329,17 @@ class Room {
 
 export default (io: SocketBackend): void => {
   const getRoom = (roomID: string) => {
-    if (!rooms[roomID]) rooms[roomID] = new Room(roomID, io)
+    if (!rooms[roomID]) {
+      rooms[roomID] = new Room(roomID, io)
+      rooms[roomID].io.emit('rooms', roomInfo())
+    } 
     return rooms[roomID]
   }
 
   io.on("connect", client => {
     console.log("client connected")
+
+    client.emit('rooms', roomInfo())
 
     client.on("getRooms", async ({}, reply) => {
       const roomStates = Object.keys(rooms).map(async (key) => {

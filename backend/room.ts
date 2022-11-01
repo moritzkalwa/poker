@@ -227,7 +227,7 @@ class Room {
     if (client.id !== this.playingMemberId) return
     switch (action) {
       case 'bet':
-        if (amount && amount > this.currentBet && amount <= this.playerBudget[client.id]) {
+        if (amount && amount + this.playerRoundBets[client.id] > this.currentBet && amount <= this.playerBudget[client.id]) {
           this.lastBetId = client.id
           this.playerBets[client.id] += amount
           this.playerRoundBets[client.id] += amount
